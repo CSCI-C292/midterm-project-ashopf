@@ -1,1 +1,78 @@
-Initial commit for midterm repo
+C343 / Fall 2020
+lecture 
+10/15/2020 Time: 10:45 AM
+Armand Hopf ashopf
+
+Sorting algorithms in theta(nlogn):
+Heapsort
+	based on heap structures
+	tree is balanced: max(min)-heaps are complete binary trees
+	space efficient
+	building max(min) heap is cheap
+heapsort repeatedly removes the max val at pos 0, and restores heap property,
+until the heap is empty.
+building tkes theta(n)
+heapsort operations take theta(nlogn)
+cost is theta(nlogn) in best,avg,worst cases
+
+Mergesort is a divide and conquer algorithm.
+It splits an (unsorted) list in half, then sorts each half, 
+then merges sorted halves together.
+
+How does the merge work?
+	merge step compares the front element of the two sorted halves	
+	and continually appends the smaller of the elements to an output list
+	until there are no more input elements remaining
+
+Mergesort is works well with sorting singly linked lists, because merging 
+does not require random access to the list elements.
+	mergesort is therefore the sorting mehod of choice when the input is a linked list.
+
+Asymptotic cost of Mergesort?
+	at every one of the log(n) levels of recursion, theta(n) work is done:
+	at every level of recursion, the mergesort alg takes no more than O(n)
+	and no less than Omega(n)
+	The total cost is theta(nlogn), since there are log(n) levels of recursion.
+	cost is unaffected by order of values being sorted.
+	Therefore, the asymptotic anaylsis is correct for best, avg, worst cases
+	
+Time Complexity and Comparison Operations
+The property of a sorted array is that its elements are ordered by index.
+One way to define ordering: for every valid pair of indices i and j in the sorted array
+A, i<j <-> A[i]<=A[j]
+
+We would like toevaluta the time complexity of soorting algorithms even if we
+consider only comparison operations in sorting algortihms.
+If we consider only comparison operations, we can visualize such an algoirthm as a
+ "tree of all possible comparison outcomes"
+ 
+ Sorting: Lower Bounds
+ Lower bounds for comparison algorithms:
+ is omega(nlogn) the lower bound for comparison-based sorting algorithms?
+ In general, no algorithm can be more efficient than the necessary I/O time for the problem solved by the algorithm.
+ Therefore, in general the sorting problem cannot be solved by any algorithm in less than omega(n) time,
+ because it takes at least n steps to read(and write) the n values to be sorted.
+ 
+ Lower Bound for Search
+	number of leaves in the above execution decision tree >= num of possible answers >= n
+	the decision tree is binary
+	therefore, the height of the tree is >= log(theta(n)) = log(n)theta(1)
+	
+No sorting algorithm based on key comparisons can possibly be faster than omega(nlogn) in the worst case,
+because the tree of all possible comparison outcomes has height h>=(log(n!)),
+therfore the number of steps for a path in such a tree, from top to bottom, is omega(nlogn)
+
+non-comparison-based sorting, Further sorting algortihms
+counting sort
+bin sort
+bucket sort
+radix sort
+quicksort
+
+Counting Sorting works by first counting the num of records for each key value.
+The algorithm then uses this information to place the records in order.
+Main properties of the counting sort algoirthm are:
+It does not sort in place.
+It does preserve existing relative order between items with the same key.
+it uses an intermediate array as (1) histogram and (2) look-up table: the intermediate array is MaxKeyValue in size!
+Counting Sort takes at least theta(n + MaxKeyValue) time, and theta(n + MaxKeyValue) space.
