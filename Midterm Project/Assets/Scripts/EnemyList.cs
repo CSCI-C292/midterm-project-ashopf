@@ -4,5 +4,6 @@ using UnityEngine;
 
 public class EnemyList : MonoBehaviour
 {
-   public static List<GameObject> enemies = new List<GameObject>();
+     //just a list to keep track of all of our enemies
+     public static List<GameObject> enemies = new List<GameObject>();
 }
