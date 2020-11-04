@@ -41,7 +41,7 @@ public class TileManager : MonoBehaviour
             if(IsEmpty){
                 changeTileColor(tileAvailableColor);
             }
-            if(!IsEmpty && this.tag == "Path"){
+            if(!IsEmpty){
                 changeTileColor(tileTakenColor);
             }
             else if(Input.GetMouseButtonDown(0)){
@@ -66,9 +66,10 @@ public class TileManager : MonoBehaviour
         GameObject gO = (GameObject)Instantiate(gM.towerSelected.TowerPrefab, transform.position, Quaternion.identity);
         gO.transform.SetParent(transform);
         this.towerOnTile = gO.transform.GetChild(0).GetComponent<Tower>();
-        IsEmpty = false;
+        this.IsEmpty = false;
+        towerOnTile.Cost = gM.towerSelected.Price;
         gM.BuyTower();
-        ableToWalk = false;
+        this.ableToWalk = false;
         
     }
 

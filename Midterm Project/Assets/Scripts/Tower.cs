@@ -14,9 +14,17 @@ public class Tower : MonoBehaviour
     private Queue<Enemies> enemies = new Queue<Enemies>();
     private bool ableToAttack = true;
     private float attackTimer;
+    public int Cost{get; set;}
     [SerializeField] private float fireRate;
     [SerializeField] private string bulletType;
     [SerializeField] private float bulletSpeed;
+    [SerializeField] private int damage;
+
+    public int Damage{
+        get{
+            return damage;
+        }
+    }
     public float BulletSpeed{
         get{
             return bulletSpeed;
@@ -34,7 +42,6 @@ public class Tower : MonoBehaviour
     void Update()
     {
         attack();
-        Debug.Log(targetedEnemy);
     }
 
     //viewTowerRange() just sets the spriteRenderer for the tower's range active
@@ -56,11 +63,17 @@ public class Tower : MonoBehaviour
         if(targetedEnemy == null && enemies.Count > 0){
             targetedEnemy = enemies.Dequeue();
         }
-        if(targetedEnemy != null){
+        if(targetedEnemy != null && targetedEnemy.IsActive){
             if(ableToAttack){
                 fire();
                 ableToAttack = false;
             }
+        }
+        else if(enemies.Count > 0){
+            targetedEnemy = enemies.Dequeue();
+        }
+        if(targetedEnemy != null && !targetedEnemy.IsAlive){
+            targetedEnemy = null;
         }
     }
 

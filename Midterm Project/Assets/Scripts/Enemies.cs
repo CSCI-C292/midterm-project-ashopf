@@ -6,14 +6,20 @@ public class Enemies : MonoBehaviour
 {   
     [SerializeField] private float enemySpeed;
     [SerializeField] private float enemyHealth;
-    [SerializeField] private float playerReward;
+    [SerializeField] private int playerReward;
     [SerializeField] private int damage;
-    private bool IsActive;
+    public bool IsActive{ get; set; }
     private Stack<Node> path;
-    public Point GridPosition {get; set; }
+    public Point GridPosition { get; set; }
     private Vector3 destination;
     private int pointIndex = 0;
     private GameObject targetTile;
+    public bool IsAlive{
+        get{
+            return enemyHealth > 0;
+        }
+    }
+    
 
    
 
@@ -24,8 +30,8 @@ public class Enemies : MonoBehaviour
     //Whenever our enemy is hit by a projectile it needs to takeDamage from the bullet and takeDamage decreases our enemy health by the given amount
     // if the enemyHealth is ever <= 0 we can call the die() method. 
 
-    public void takeDamage(float amount){
-        enemyHealth -= amount;
+    public void takeDamage(int damage){
+        enemyHealth -= damage;
         if(enemyHealth <= 0){
             die();
         }
@@ -33,8 +39,11 @@ public class Enemies : MonoBehaviour
 
     //die() sounds morbid but whenever our enemyHealth has reached 0 we must remove it from our EnemyList and destroy the gameObject
     private void die(){
+        GameManager gM = GameObject.FindObjectOfType<GameManager>();
         EnemyList.enemies.Remove(gameObject);
-        Destroy(transform.gameObject);
+        IsActive = false;
+        gM.Currency += playerReward;
+        returnEnemy();
     }
 
     private void Update(){
@@ -45,19 +54,23 @@ public class Enemies : MonoBehaviour
     public void SpawnEnemy(){
         MapGenerator mG = GameObject.FindObjectOfType<MapGenerator>();
         this.transform.position = mG.BaseStart.transform.position;
+        IsActive = true;
         SetPath(mG.MapPath);
     }
 
     //Move() handles the enemy movement along the path by checking the enemy position is at the destination.
     //Then if our path isn't null and we still have tiles in our path left we must peek at our next position and pop our new destination. 
     private void Move(){
-        transform.position = Vector2.MoveTowards(transform.position, destination, enemySpeed * Time.deltaTime);
+        if(IsActive){
+            transform.position = Vector2.MoveTowards(transform.position, destination, enemySpeed * Time.deltaTime);
         if(transform.position == destination){
             if(path != null && path.Count > 0){
                 GridPosition = path.Peek().GridPos;
                 destination = path.Pop().WorldPos;
             }
         }
+        }
+        
     }
 
     //SetPath() takes a stack of Nodes (or tiles references) given from our pathfinding algorithm and sets the path the enemies need to take

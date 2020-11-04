@@ -23,10 +23,23 @@ public class Bullet : MonoBehaviour
     private void SeekAndDestroy(){
         if(targetedEnemy != null){
             transform.position = Vector3.MoveTowards(transform.position, targetedEnemy.transform.position,Time.deltaTime * parentTower.BulletSpeed);
+            Vector2 direction = targetedEnemy.transform.position - transform.position;
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
         }
         else if(targetedEnemy == null){
             GameManager gM = GameObject.FindObjectOfType<GameManager>();
             gM.objStorage.ReturnToStorage(gameObject);
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D other){
+        if(other.tag == "Enemy"){
+            if(targetedEnemy.gameObject == other.gameObject){
+                targetedEnemy.takeDamage(parentTower.Damage);
+                GameManager gM = GameObject.FindObjectOfType<GameManager>();
+                gM.objStorage.ReturnToStorage(gameObject);
+            }
         }
     }
 }

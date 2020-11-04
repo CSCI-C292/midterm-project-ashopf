@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.EventSystems;
 
 public class GameManager : MonoBehaviour
 {
     public TowerButton towerSelected { get; private set; }
     [SerializeField] private GameObject roundButton;
+    [SerializeField] private GameObject sellTowerButton;
     [SerializeField] private GameObject gameOverScreen;
     private int currency;
     private int round = 0;
@@ -48,8 +50,7 @@ public class GameManager : MonoBehaviour
                 GameOver();
             }
         }
-    }
-
+    } 
     private void Awake(){
         objStorage = GetComponent<ObjectStorage>();
     }
@@ -80,6 +81,7 @@ public class GameManager : MonoBehaviour
     public void clickTower(Tower tower){
         towerClicked = tower;
         towerClicked.viewTowerRange();
+        sellTowerButton.SetActive(true);
     }
 
     //BuyTower() is called whenever we try and SetTower() and it checks if we have enough money to buy the Tower. If we have enough,
@@ -90,8 +92,11 @@ public class GameManager : MonoBehaviour
             TowerHover tH = GameObject.FindObjectOfType<TowerHover>();
             tH.hideHover();
             towerSelected = null;
+            
         }
     }
+
+   
 
     //StartRound() is called whenever we click the StartRound Button, and it handles which Round we are currently on for the HUD text. 
     //It also calls our Coroutine SpawnWave() and then disables our roundButton until we are ready for the next wave. 
@@ -107,18 +112,18 @@ public class GameManager : MonoBehaviour
     private IEnumerator SpawnWave(){
         MapGenerator mG = GameObject.FindObjectOfType<MapGenerator>();
 
-        for(int i = 0; i < round; i++){
+        for(int i = 0; i < round * 5; i++){
             int enemyIndex = 0;
-            if(round > 5){
+            if(round >= 2){
                 enemyIndex = Random.Range(0,1);                
             }
-            if(round > 10){
+            if(round >= 5){
                 enemyIndex = Random.Range(0,2);
             }
-            if(round > 15){
+            if(round >= 6){
                 enemyIndex = Random.Range(0,3);
             }
-            if(round > 20){
+            if(round >= 7){
                 enemyIndex = Random.Range(0,4);
             }
             string enemyType = string.Empty;
@@ -149,8 +154,18 @@ public class GameManager : MonoBehaviour
     //aliveEnemies list. If our round is over and our game is NOT over we want to make our RoundButton active so we can start another round.
     public void deadEnemy(Enemies enemy){
         aliveEnemies.Remove(enemy);
-        if(!roundActive && gameOver){
+        if(!roundActive && !gameOver){
             roundButton.SetActive(true);
+        }
+    }
+
+    public void sellTower(){
+        if(towerClicked != null){
+            Currency += towerClicked.Cost / 2;
+            towerClicked.GetComponentInParent<TileManager>().IsEmpty = true;
+            Destroy(towerClicked.transform.parent.gameObject);
+            towerClicked = null;
+            sellTowerButton.SetActive(false);
         }
     }
 
