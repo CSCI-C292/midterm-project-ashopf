@@ -9,21 +9,22 @@ public class GameManager : MonoBehaviour
 {
     public TowerButton towerSelected { get; private set; }
     [SerializeField] private GameObject roundButton;
-    [SerializeField] private GameObject sellTowerButton;
+    [SerializeField] public GameObject sellTowerButton;
     [SerializeField] private GameObject gameOverScreen;
     private int currency;
-    private int round = 0;
+    public int round = 0;
     private int health;
+    public int enemiesThisRound;
     [SerializeField] private TextMeshProUGUI healthText;
     [SerializeField] private TextMeshProUGUI roundText;
     [SerializeField] private TextMeshProUGUI currencyText;
     List<Enemies> aliveEnemies = new List<Enemies>();
     private bool gameOver = false;
-
+    private bool doneSpawning;
     private Tower towerClicked;
     public bool roundActive{
         get {
-            return aliveEnemies.Count > 0;
+            return aliveEnemies.Count > 0 && enemiesThisRound > 0 && doneSpawning;
         }
     }
 
@@ -64,7 +65,6 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
     }
 
     //Whenever a TowerButton is clicked in the shop we check if the player has enough currency to buy the tower, and we call showHover() if we do. 
@@ -79,9 +79,9 @@ public class GameManager : MonoBehaviour
 
     //clickTower() is used whenever a tower has been placed on a tile and we want to view its range
     public void clickTower(Tower tower){
-        towerClicked = tower;
-        towerClicked.viewTowerRange();
-        sellTowerButton.SetActive(true);
+            towerClicked = tower;
+            sellTowerButton.SetActive(true);
+            towerClicked.viewTowerRange();
     }
 
     //BuyTower() is called whenever we try and SetTower() and it checks if we have enough money to buy the Tower. If we have enough,
@@ -104,6 +104,7 @@ public class GameManager : MonoBehaviour
         round++;
         roundText.text = "Round: " + round.ToString();
         StartCoroutine(SpawnWave());
+        Currency += Mathf.FloorToInt((round * 100) / 10);
         roundButton.SetActive(false);
     }
 
@@ -111,19 +112,21 @@ public class GameManager : MonoBehaviour
     // into a list to determine if the enemy is alive. It also tells the enemies the generatedPath they need to follow.  
     private IEnumerator SpawnWave(){
         MapGenerator mG = GameObject.FindObjectOfType<MapGenerator>();
+        enemiesThisRound = round * 5;
 
-        for(int i = 0; i < round * 5; i++){
+        for(int i = 0; i < enemiesThisRound; i++){
+            doneSpawning = false;
             int enemyIndex = 0;
-            if(round >= 2){
+            if(round >= 5){
                 enemyIndex = Random.Range(0,1);                
             }
-            if(round >= 5){
+            if(round >= 10){
                 enemyIndex = Random.Range(0,2);
             }
-            if(round >= 6){
+            if(round >= 15){
                 enemyIndex = Random.Range(0,3);
             }
-            if(round >= 7){
+            if(round >= 20){
                 enemyIndex = Random.Range(0,4);
             }
             string enemyType = string.Empty;
@@ -146,6 +149,7 @@ public class GameManager : MonoBehaviour
             aliveEnemies.Add(enemy);
             yield return new WaitForSeconds(.5f);
         }
+        doneSpawning = true;
         mG.GeneratePath();
         
     }
@@ -159,13 +163,14 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    //whenever we click on a tower we want the ability to sell the tower for half its cost and then destroy it.
     public void sellTower(){
         if(towerClicked != null){
             Currency += towerClicked.Cost / 2;
             towerClicked.GetComponentInParent<TileManager>().IsEmpty = true;
             Destroy(towerClicked.transform.parent.gameObject);
-            towerClicked = null;
             sellTowerButton.SetActive(false);
+            towerClicked = null;
         }
     }
 

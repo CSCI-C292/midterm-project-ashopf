@@ -10,7 +10,6 @@ public class ObjectStorage : MonoBehaviour
     //GetObject(string type) returns a gameObject depending on the string given. For ex. we can ask for a "Bullet" or a "BaseEnemy" from our
     //and we will iterate through our objectList to see if we have the desired object. 
     public GameObject GetObject(string type){
-        GameObject tmp = new GameObject();
 
         foreach(GameObject gameObj in objectList){
             if(gameObj.name == type && !gameObj.activeInHierarchy){
@@ -28,7 +27,7 @@ public class ObjectStorage : MonoBehaviour
                 return newObject;
             }
         }
-        return tmp;
+        return null;
     }
 
     //ReturnToStorage() just sets the gameObject inactive. 

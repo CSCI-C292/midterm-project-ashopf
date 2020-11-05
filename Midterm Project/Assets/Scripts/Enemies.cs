@@ -20,13 +20,6 @@ public class Enemies : MonoBehaviour
         }
     }
     
-
-   
-
-    private void Awake(){
-        EnemyList.enemies.Add(gameObject);
-    }
-    
     //Whenever our enemy is hit by a projectile it needs to takeDamage from the bullet and takeDamage decreases our enemy health by the given amount
     // if the enemyHealth is ever <= 0 we can call the die() method. 
 
@@ -40,9 +33,9 @@ public class Enemies : MonoBehaviour
     //die() sounds morbid but whenever our enemyHealth has reached 0 we must remove it from our EnemyList and destroy the gameObject
     private void die(){
         GameManager gM = GameObject.FindObjectOfType<GameManager>();
-        EnemyList.enemies.Remove(gameObject);
         IsActive = false;
         gM.Currency += playerReward;
+        gM.enemiesThisRound--;
         returnEnemy();
     }
 

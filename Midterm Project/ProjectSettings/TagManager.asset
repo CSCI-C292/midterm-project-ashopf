@@ -6,6 +6,7 @@ TagManager:
   tags:
   - EndBase
   - Enemy
+  - Map
   layers:
   - Default
   - TransparentFX

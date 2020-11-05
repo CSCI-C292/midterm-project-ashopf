@@ -6,12 +6,7 @@ public class Tower : MonoBehaviour
 {
     private SpriteRenderer spriteRenderer;
     private Enemies targetedEnemy;
-    public Enemies TargetedEnemy{
-        get{
-            return targetedEnemy;
-        }
-    }
-    private Queue<Enemies> enemies = new Queue<Enemies>();
+    private List<Enemies> enemies = new List<Enemies>();
     private bool ableToAttack = true;
     private float attackTimer;
     public int Cost{get; set;}
@@ -19,7 +14,11 @@ public class Tower : MonoBehaviour
     [SerializeField] private string bulletType;
     [SerializeField] private float bulletSpeed;
     [SerializeField] private int damage;
-
+    public Enemies TargetedEnemy{
+        get{
+            return targetedEnemy;
+        }
+    }
     public int Damage{
         get{
             return damage;
@@ -32,10 +31,9 @@ public class Tower : MonoBehaviour
     }
 
     // Start is called before the first frame update
-    void Start()
-    {
-     this.spriteRenderer = GetComponent<SpriteRenderer>();   
-     ableToAttack = true;
+    void Start(){
+    this.spriteRenderer = GetComponent<SpriteRenderer>();   
+    ableToAttack = true;
     }
 
     // Update is called once per frame
@@ -46,7 +44,7 @@ public class Tower : MonoBehaviour
 
     //viewTowerRange() just sets the spriteRenderer for the tower's range active
     public void viewTowerRange(){
-        spriteRenderer.enabled = !spriteRenderer.enabled; 
+        spriteRenderer.enabled = !spriteRenderer.enabled;
     }
 
     //attack() basically determines whether or not we should attack an enemy. If we are able to attack then we check if we have a targetedEnemy.
@@ -61,7 +59,8 @@ public class Tower : MonoBehaviour
             }
         }
         if(targetedEnemy == null && enemies.Count > 0){
-            targetedEnemy = enemies.Dequeue();
+            enemies.Remove(targetedEnemy);
+            targetedEnemy = enemies[0];
         }
         if(targetedEnemy != null && targetedEnemy.IsActive){
             if(ableToAttack){
@@ -70,10 +69,11 @@ public class Tower : MonoBehaviour
             }
         }
         else if(enemies.Count > 0){
-            targetedEnemy = enemies.Dequeue();
+            enemies.Remove(targetedEnemy);
+            targetedEnemy = enemies[0];
         }
-        if(targetedEnemy != null && !targetedEnemy.IsAlive){
-            targetedEnemy = null;
+        if(targetedEnemy != null && !targetedEnemy.IsAlive || targetedEnemy != null && !targetedEnemy.IsActive){
+            enemies.Remove(targetedEnemy);
         }
     }
 
@@ -88,14 +88,23 @@ public class Tower : MonoBehaviour
     //Whenever something collides with our range we check if it is an Enemy and then add it to our enemies Queue for all of our targeted enemies
     public void OnTriggerEnter2D(Collider2D other){
         if(other.tag == "Enemy"){
-            enemies.Enqueue(other.GetComponent<Enemies>());
+            enemies.Add(other.GetComponent<Enemies>());
+            if(enemies[0] != null){
+                targetedEnemy = enemies[0];
+            }else if(enemies[0] == null){
+                for(int i = 0; i < enemies.Count; i++){
+                    if(enemies[i] != null){
+                        targetedEnemy = enemies[i];
+                    }
+                }
+            }
         }
     }
 
     //Whenever something leaves our range collider we want to check if was an enemy and then set our targeted enemy back to null
     public void OnTriggerExit2D(Collider2D other){
         if(other.tag == "Enemy"){
-            targetedEnemy = null;
+            enemies.Remove(targetedEnemy);
         }
     }
 }
