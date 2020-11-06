@@ -41,7 +41,7 @@ public class MapGenerator : MonoBehaviour
         generateMap();
     }
 
-    //generates the map
+    //generates the map by placing the tiles placing tiles row by row
     private void generateMap(){
 
         TileDictionary = new Dictionary<Point, TileManager>();

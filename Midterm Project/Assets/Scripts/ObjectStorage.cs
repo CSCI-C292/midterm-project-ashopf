@@ -5,7 +5,7 @@ using UnityEngine;
 public class ObjectStorage : MonoBehaviour
 {
     [SerializeField] private GameObject[] objectPrefabs;
-    private List<GameObject> objectList = new List<GameObject>();
+    public List<GameObject> objectList = new List<GameObject>();
 
     //GetObject(string type) returns a gameObject depending on the string given. For ex. we can ask for a "Bullet" or a "BaseEnemy" from our
     //and we will iterate through our objectList to see if we have the desired object. 

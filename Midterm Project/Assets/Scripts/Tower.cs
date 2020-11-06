@@ -6,7 +6,7 @@ public class Tower : MonoBehaviour
 {
     private SpriteRenderer spriteRenderer;
     private Enemies targetedEnemy;
-    private List<Enemies> enemies = new List<Enemies>();
+    public List<Enemies> enemies = new List<Enemies>();
     private bool ableToAttack = true;
     private float attackTimer;
     public int Cost{get; set;}
@@ -40,6 +40,7 @@ public class Tower : MonoBehaviour
     void Update()
     {
         attack();
+        noTargetedEnemy();
     }
 
     //viewTowerRange() just sets the spriteRenderer for the tower's range active
@@ -74,6 +75,7 @@ public class Tower : MonoBehaviour
         }
         if(targetedEnemy != null && !targetedEnemy.IsAlive || targetedEnemy != null && !targetedEnemy.IsActive){
             enemies.Remove(targetedEnemy);
+            targetedEnemy = null;
         }
     }
 
@@ -89,11 +91,11 @@ public class Tower : MonoBehaviour
     public void OnTriggerEnter2D(Collider2D other){
         if(other.tag == "Enemy"){
             enemies.Add(other.GetComponent<Enemies>());
-            if(enemies[0] != null){
+            if(enemies[0] == null){
                 targetedEnemy = enemies[0];
-            }else if(enemies[0] == null){
+            }else if(enemies[0] != null){
                 for(int i = 0; i < enemies.Count; i++){
-                    if(enemies[i] != null){
+                    if(enemies[i] == null){
                         targetedEnemy = enemies[i];
                     }
                 }
@@ -104,6 +106,14 @@ public class Tower : MonoBehaviour
     //Whenever something leaves our range collider we want to check if was an enemy and then set our targeted enemy back to null
     public void OnTriggerExit2D(Collider2D other){
         if(other.tag == "Enemy"){
+            enemies.Remove(other.GetComponent<Enemies>());
+        }
+    }
+
+    //if our round is over we want to make sure the tower does not have a targeted enemy still.
+    public void noTargetedEnemy(){
+        GameManager gM = GameObject.FindObjectOfType<GameManager>();
+        if(!gM.roundActive){
             enemies.Remove(targetedEnemy);
         }
     }

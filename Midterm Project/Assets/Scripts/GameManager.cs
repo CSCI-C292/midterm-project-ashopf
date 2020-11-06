@@ -18,13 +18,13 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI healthText;
     [SerializeField] private TextMeshProUGUI roundText;
     [SerializeField] private TextMeshProUGUI currencyText;
-    List<Enemies> aliveEnemies = new List<Enemies>();
+    public List<Enemies> aliveEnemies = new List<Enemies>();
     private bool gameOver = false;
     private bool doneSpawning;
     private Tower towerClicked;
     public bool roundActive{
         get {
-            return aliveEnemies.Count > 0 && enemiesThisRound > 0 && doneSpawning;
+            return aliveEnemies.Count > 0 || !doneSpawning;
         }
     }
 
@@ -112,9 +112,8 @@ public class GameManager : MonoBehaviour
     // into a list to determine if the enemy is alive. It also tells the enemies the generatedPath they need to follow.  
     private IEnumerator SpawnWave(){
         MapGenerator mG = GameObject.FindObjectOfType<MapGenerator>();
-        enemiesThisRound = round * 5;
 
-        for(int i = 0; i < enemiesThisRound; i++){
+        for(int i = 0; i < round * 5; i++){
             doneSpawning = false;
             int enemyIndex = 0;
             if(round >= 5){
@@ -146,10 +145,13 @@ public class GameManager : MonoBehaviour
             }
             Enemies enemy = objStorage.GetObject(enemyType).GetComponent<Enemies>();
             enemy.SpawnEnemy();
+            
             aliveEnemies.Add(enemy);
             yield return new WaitForSeconds(.5f);
+            if(i == (round*5) - 1){
+                doneSpawning = true;
+            }
         }
-        doneSpawning = true;
         mG.GeneratePath();
         
     }

@@ -5,7 +5,7 @@ using UnityEngine;
 public class Enemies : MonoBehaviour
 {   
     [SerializeField] private float enemySpeed;
-    [SerializeField] private float enemyHealth;
+    [SerializeField] private int enemyHealth;
     [SerializeField] private int playerReward;
     [SerializeField] private int damage;
     public bool IsActive{ get; set; }
@@ -17,6 +17,12 @@ public class Enemies : MonoBehaviour
     public bool IsAlive{
         get{
             return enemyHealth > 0;
+        }
+    }
+
+    public int EnemyHealth{
+        get{
+            return enemyHealth;
         }
     }
     
@@ -46,6 +52,7 @@ public class Enemies : MonoBehaviour
     //whenever we spawn an enemy we must set its transform to the startBase, and we must tell the enemy the path it needs to take along the map.
     public void SpawnEnemy(){
         MapGenerator mG = GameObject.FindObjectOfType<MapGenerator>();
+        GameManager gM = GameObject.FindObjectOfType<GameManager>();
         this.transform.position = mG.BaseStart.transform.position;
         IsActive = true;
         SetPath(mG.MapPath);
@@ -56,14 +63,13 @@ public class Enemies : MonoBehaviour
     private void Move(){
         if(IsActive){
             transform.position = Vector2.MoveTowards(transform.position, destination, enemySpeed * Time.deltaTime);
-        if(transform.position == destination){
-            if(path != null && path.Count > 0){
-                GridPosition = path.Peek().GridPos;
-                destination = path.Pop().WorldPos;
+            if(transform.position == destination){
+                if(path != null && path.Count > 0){
+                   GridPosition = path.Peek().GridPos;
+                   destination = path.Pop().WorldPos;
+                }
             }
         }
-        }
-        
     }
 
     //SetPath() takes a stack of Nodes (or tiles references) given from our pathfinding algorithm and sets the path the enemies need to take
@@ -86,7 +92,7 @@ public class Enemies : MonoBehaviour
     //returnEnemy() puts the given enemy into storage by calling ReturnToStorage() in our ObjectStorage and then tells the gameManager that its a deadEnemy()
     private void returnEnemy(){
         GameManager gM = GameObject.FindObjectOfType<GameManager>();
-        gM.objStorage.ReturnToStorage(this.gameObject);
         gM.deadEnemy(this);
+        gM.objStorage.ReturnToStorage(this.gameObject);
     }
 }

@@ -9,6 +9,7 @@ public class Bullet : MonoBehaviour
     void Update()
     {
         SeekAndDestroy();
+        ReturnAllBullets();
     }
 
     //Initialize tells the bullet who is their parent Tower and tells the bullet who the targetedEnemy is for the parent tower. 
@@ -26,23 +27,33 @@ public class Bullet : MonoBehaviour
             Vector2 direction = targetedEnemy.transform.position - transform.position;
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
-            if(!gM.roundActive){
-                gM.objStorage.ReturnToStorage(gameObject);
-            }
-        }
-        else if(targetedEnemy == null || !gM.roundActive){
-            gM.objStorage.ReturnToStorage(gameObject);
+            
         }
     }
 
     //Whenever the bullet collides with an enemy we damage the enemy and return our bullet to storage
     private void OnTriggerEnter2D(Collider2D other){
+        GameManager gM = GameObject.FindObjectOfType<GameManager>();
         if(other.tag == "Enemy"){
             if(targetedEnemy.gameObject == other.gameObject){
                 targetedEnemy.takeDamage(parentTower.Damage);
-                GameManager gM = GameObject.FindObjectOfType<GameManager>();
                 gM.objStorage.ReturnToStorage(gameObject);
             }
         }
+    }
+
+    //ReturnAllBullets() is designed to check if there are any bullets that got left on the player screen.
+    //If there are any stragglers it sends them to the storage.
+    private void ReturnAllBullets(){
+        GameManager gM = GameObject.FindObjectOfType<GameManager>();
+        if(!gM.roundActive){
+            gM.objStorage.ReturnToStorage(gameObject);
+        }
+        if(parentTower.TargetedEnemy != null){
+            if(!parentTower.TargetedEnemy.IsActive || !parentTower.TargetedEnemy.IsAlive){
+               gM.objStorage.ReturnToStorage(gameObject);
+            }
+        }
+        
     }
 }
